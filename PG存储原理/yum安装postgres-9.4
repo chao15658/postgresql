@@ -1,0 +1,35 @@
+yum安装postgres-9.4
+
+1、安装yum源
+rpm -ivh https://download.postgresql.org/pub/repos/yum/9.4/redhat/rhel-7.6-x86_64/pgdg-centos94-9.4-3.noarch.rpm
+
+2、安装pgsql：
+yum install -y postgresql94-server postgresql94-contrib
+
+3、初始化数据库：
+/usr/pgsql-9.4/bin/postgresql94-setup initdb
+
+4、设置环境变量,编辑.bashrc
+export PGHOME=/usr/pgsql-9.4
+export PATH=$PGHOME/bin:$PATH
+export PGDATA=/var/lib/pgsql/9.4/data
+export LD_LIBRARY_PATH=$PGHOME/lib
+export PGDATABASE=postgres
+export PGUSER=postgres
+export PGPORT=5432
+
+5、配置远程访问
+vim /var/lib/pgsql/9.4/data/postgresql.conf
+listen_address = "*"
+
+vim /var/lib/pgsql/9.4/data/pg_hba.conf
+IPv4 local connections下方添加允许连接的IP
+host     all     all     0.0.0.0/0     md5
+
+6、更改postgres用户密码
+ALTER USER postgres with encrypted password 'passwd';
+
+
+
+参考链接
+https://soulchild.cn/1149.html

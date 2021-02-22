@@ -1,0 +1,83 @@
+docker run \
+-e INITIAL_NODE_TYPE='master' \
+-e NODE_ID=1 \
+-e NODE_NAME='node1' \
+-e CLUSTER_NODE_NETWORK_NAME='pgmaster' \
+-e POSTGRES_PASSWORD='monkey_pass' \
+-e POSTGRES_USER='monkey_user' \
+-e POSTGRES_DB='monkey_db' \
+-e CLUSTER_NODE_REGISTER_DELAY=5 \
+-e REPLICATION_DAEMON_START_DELAY=120 \
+-e CLUSTER_NAME='pg_cluster' \
+-e REPLICATION_DB='replication_db' \
+-e REPLICATION_USER='replication_user' \
+-e REPLICATION_PASSWORD='replication_pass' \
+-v cluster-archives:/var/cluster_archive \
+-p 5440:5432 \
+--net mynet \
+--net-alias pgmaster \
+--name pgmastertest \
+-d paunin/postgresql-cluster-pgsql
+
+
+docker run \
+-e INITIAL_NODE_TYPE='standby' \
+ -e NODE_ID=2 \
+ -e NODE_NAME='node2' \
+ -e REPLICATION_PRIMARY_HOST='pgmaster'\
+ -e CLUSTER_NODE_NETWORK_NAME='pgslave1' \
+ -e REPLICATION_UPSTREAM_NODE_ID=1 \
+ -v cluster-archives:/var/cluster_archive \
+ -p 5441:5432 \
+ --net mynet \
+ --net-alias pgslave1 \
+ --name pgslavetest1 \
+ -d paunin/postgresql-cluster-pgsql
+
+
+docker run \
+-e INITIAL_NODE_TYPE='standby' \
+ -e NODE_ID=3 \
+ -e NODE_NAME='node3' \
+ -e REPLICATION_PRIMARY_HOST='pgmaster' \
+ -e CLUSTER_NODE_NETWORK_NAME='pgslave2' \
+ -e REPLICATION_UPSTREAM_NODE_ID=2 \
+ -v cluster-archives:/var/cluster_archive \
+ -p 5442:5432 \
+ --net mynet \
+ --net-alias pgslave2 \
+ --name pgslavetest2 \
+ -d paunin/postgresql-cluster-pgsql
+
+
+ docker run \
+-e PCP_USER='pcp_user' \
+ -e PCP_PASSWORD='pcp_pass' \
+ -e PGPOOL_START_DELAY=120 \
+ -e REPLICATION_USER='replication_user' \
+ -e REPLICATION_PASSWORD='replication_pass' \
+ -e SEARCH_PRIMARY_NODE_TIMEOUT=5 \
+ -e DB_USERS='monkey_user:monkey_pass' \
+ -e BACKENDS='0:pgmaster:5432:1:/var/lib/postgresql/data:ALLOW_TO_FAILOVER,1:pgslave1::::,2:pgslave2::::' \
+ -p 5430:5432 \
+ -p 9898:9898 \
+ --net mynet \
+ --net-alias pgpool \
+ --name pgpooltest \
+ -d paunin/postdock-pgpool
+
+  docker run \
+-e PCP_USER='pcp_user' \
+ -e PCP_PASSWORD='pcp_pass' \
+ -e PGPOOL_START_DELAY=120 \
+ -e REPLICATION_USER='replication_user' \
+ -e REPLICATION_PASSWORD='replication_pass' \
+ -e SEARCH_PRIMARY_NODE_TIMEOUT=5 \
+ -e DB_USERS='monkey_user:monkey_pass' \
+ -e BACKENDS='0:pgmaster:5432:1:/var/lib/postgresql/data:ALLOW_TO_FAILOVER,1:pgslave1::::,2:pgslave2::::' \
+ -p 5431:5432 \
+ -p 9899:9898 \
+ --net mynet \
+ --net-alias pgpool2 \
+ --name pgpooltest2 \
+ -d paunin/postdock-pgpool
