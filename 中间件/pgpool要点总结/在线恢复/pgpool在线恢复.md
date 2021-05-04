@@ -54,7 +54,6 @@ postgres=# show pool_nodes;
 2、恢复
 [postgres@node0 ~]$ /usr/local/pgpool/bin/pcp_recovery_node 10 node4 9898 postgres  passwd 1
 
-
 3、查看主备实例状态
 主实例状态：
 [postgres@node0 etc]$ ps -ef|grep postgres

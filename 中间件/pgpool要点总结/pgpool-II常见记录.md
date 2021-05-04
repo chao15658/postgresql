@@ -32,3 +32,5 @@ pgpool-II版本 4.2
        # (change requires restart)
 超过一半时开启仲裁。
 
+
+
